@@ -8,8 +8,20 @@ routes = web.RouteTableDef()
 
 @routes.get('/')
 async def hello(request):
+    limit = int(request.rel_url.query.get("limit", 3600))  # ~ last hour
+    offset = int(request.rel_url.query.get("offset", 0))
+
     return web.json_response({
-        "measurements": [m.value for m in await Measurement.all()]
+        "measurements": [{
+            "co2": m.co2,
+            "voc": m.voc,
+            "timestamp": m.timestamp.isoformat()
+        } for m in (await Measurement
+            .all()
+            .offset(offset)
+            .limit(limit)
+            .order_by("-timestamp")
+        )]
     })
 
 

@@ -26,7 +26,7 @@ class DataDaemon():
             logging.info(result)
 
             await Measurement.create(
-                value=result.equivalent_co2,
-                type="co2_ppm"
+                co2=result.equivalent_co2,
+                voc=result.total_voc
             )
             await asyncio.sleep(1)

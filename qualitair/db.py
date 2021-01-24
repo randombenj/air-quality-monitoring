@@ -18,8 +18,8 @@ async def init():
 
 class Measurement(Model):
     id = fields.IntField(pk=True)
-    value = fields.FloatField()
-    type = fields.TextField()
+    co2 = fields.FloatField()
+    voc = fields.TextField()
     timestamp = fields.data.DatetimeField(auto_now=True)
 
     def __str__(self):
