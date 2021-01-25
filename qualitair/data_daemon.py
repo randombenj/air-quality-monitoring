@@ -23,6 +23,7 @@ class DataDaemon():
         # blocking, it is reimplemented in the loop
         # and will only start recording measurements
         # when the sensor is heated up.
+        self._sensor.command('init_air_quality')
         is_inited = False
         testsamples = 0
 
