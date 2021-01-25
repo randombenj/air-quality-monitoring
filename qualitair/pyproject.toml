@@ -11,6 +11,7 @@ pimoroni-sgp30 = "^0.0.2"
 aiohttp = "^3.7.3"
 smbus2 = "^0.4.1"
 tortoise-orm = "^0.16.20"
+adafruit-circuitpython-dht = "^3.5.4"
 
 [tool.poetry.dev-dependencies]
 

@@ -18,10 +18,20 @@ async def init():
 
 class Measurement(Model):
     id = fields.IntField(pk=True)
-    co2 = fields.FloatField()
-    voc = fields.TextField()
+    co2 = fields.IntField()
+    voc = fields.IntField()
+    # sometimes the reading of the dht22 sensor fails
+    # this is why they are allowed to be null
+    temperature = fields.FloatField(null=True)
+    humidity = fields.FloatField(null=True)
     timestamp = fields.data.DatetimeField(auto_now=True)
 
-    def __str__(self):
-        return f"{self.type} @ {self.value::%Y-%m-%d %H:%M:%S}: {self.value:.2f}"
-
+    def to_json(self):
+        return {
+            "id": self.id,
+            "co2": self.co2,
+            "voc": self.voc,
+            "temperature": self.temperature,
+            "humidity": self.humidity,
+            "timestamp": self.timestamp.isoformat()
+        }

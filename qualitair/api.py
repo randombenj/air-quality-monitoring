@@ -12,15 +12,13 @@ async def hello(request):
     offset = int(request.rel_url.query.get("offset", 0))
 
     return web.json_response({
-        "measurements": [{
-            "co2": m.co2,
-            "voc": m.voc,
-            "timestamp": m.timestamp.isoformat()
-        } for m in (await Measurement
-            .all()
-            .offset(offset)
-            .limit(limit)
-            .order_by("-timestamp")
+        "measurements": [
+            m.to_json()
+            for m in (await Measurement
+                .all()
+                .offset(offset)
+                .limit(limit)
+                .order_by("-timestamp")
         )]
     })
 

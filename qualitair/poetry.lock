@@ -1,4 +1,44 @@
 [[package]]
+name = "adafruit-blinka"
+version = "5.13.0"
+description = "CircuitPython APIs for non-CircuitPython versions of Python such as CPython on Linux and MicroPython."
+category = "main"
+optional = false
+python-versions = ">=3.5.0"
+
+[package.dependencies]
+Adafruit-PlatformDetect = ">=2.18.1"
+Adafruit-PureIO = ">=1.1.7"
+pyftdi = ">=0.40.0"
+
+[[package]]
+name = "adafruit-circuitpython-dht"
+version = "3.5.4"
+description = "CircuitPython support for DHT11 and DHT22 type temperature/humidity devices"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+Adafruit-Blinka = "*"
+
+[[package]]
+name = "adafruit-platformdetect"
+version = "2.28.0"
+description = "Platform detection for use by libraries like Adafruit-Blinka."
+category = "main"
+optional = false
+python-versions = ">=3.5.0"
+
+[[package]]
+name = "adafruit-pureio"
+version = "1.1.8"
+description = "Pure python (i.e. no native extensions) access to Linux IO    including I2C and SPI. Drop in replacement for smbus and spidev modules."
+category = "main"
+optional = false
+python-versions = ">=3.5.0"
+
+[[package]]
 name = "aiohttp"
 version = "3.7.3"
 description = "Async http client/server framework (asyncio)"
@@ -91,6 +131,18 @@ optional = false
 python-versions = "*"
 
 [[package]]
+name = "pyftdi"
+version = "0.52.9"
+description = "FTDI device driver (pure Python)"
+category = "main"
+optional = false
+python-versions = ">=3.5"
+
+[package.dependencies]
+pyserial = ">=3.0"
+pyusb = ">=1.0.0"
+
+[[package]]
 name = "pypika"
 version = "0.44.1"
 description = "A SQL query builder API for Python"
@@ -99,9 +151,28 @@ optional = false
 python-versions = "*"
 
 [[package]]
+name = "pyserial"
+version = "3.5"
+description = "Python Serial Port Extension"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.extras]
+cp2110 = ["hidapi"]
+
+[[package]]
 name = "pytz"
 version = "2020.5"
 description = "World timezone definitions, modern and historical"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
+name = "pyusb"
+version = "1.1.1"
+description = "Python USB access module"
 category = "main"
 optional = false
 python-versions = "*"
@@ -162,9 +233,21 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8,<4.0"
-content-hash = "e829abf894f5255cee1e82b81e116cbfbb3ec6ecebb4a645f05c0f61aebcd2e9"
+content-hash = "d21a69fd5af9e0fd45a97e01d1185bdea9df315358b4cda0d3b7dfcf65d6ffcf"
 
 [metadata.files]
+adafruit-blinka = [
+    {file = "Adafruit-Blinka-5.13.0.tar.gz", hash = "sha256:65b1b2228b5268e92c7a0330c99325a95af43b6e0b06fa1da42b3f52f7c479dc"},
+]
+adafruit-circuitpython-dht = [
+    {file = "adafruit-circuitpython-dht-3.5.4.tar.gz", hash = "sha256:a54b2c53c435f016b7c532692162d0d6fd0ded1d7d5ce4fd4c1916fed56d59b7"},
+]
+adafruit-platformdetect = [
+    {file = "Adafruit-PlatformDetect-2.28.0.tar.gz", hash = "sha256:aa272605fd8a2ddcc6e5dd8151d628f76a9468c97ba7e4e315d6bc78b9bfb8f8"},
+]
+adafruit-pureio = [
+    {file = "Adafruit_PureIO-1.1.8.tar.gz", hash = "sha256:c6702589aa4bf6dc785e5f4e4ed7e68bef1d93d180633abe548fe3f39d36cad5"},
+]
 aiohttp = [
     {file = "aiohttp-3.7.3-cp36-cp36m-macosx_10_14_x86_64.whl", hash = "sha256:328b552513d4f95b0a2eea4c8573e112866107227661834652a8984766aa7656"},
     {file = "aiohttp-3.7.3-cp36-cp36m-manylinux1_i686.whl", hash = "sha256:c733ef3bdcfe52a1a75564389bad4064352274036e7e234730526d155f04d914"},
@@ -273,12 +356,24 @@ pimoroni-sgp30 = [
     {file = "pimoroni_sgp30-0.0.2-py2-none-any.whl", hash = "sha256:f1edb370ff1dd81eef7161a1a469ebab0cff1be7ba9d573bcb9c63e5ce47b2ab"},
     {file = "pimoroni_sgp30-0.0.2-py3-none-any.whl", hash = "sha256:89e518e79be7657bb666b4ce3497ed217cda8889e00600a2676f4ebfcfd32293"},
 ]
+pyftdi = [
+    {file = "pyftdi-0.52.9-py3-none-any.whl", hash = "sha256:e8123dc3663ff3ac89eac962774e755b611e7f7202e9e36f6b6eb915fedc53f1"},
+    {file = "pyftdi-0.52.9.tar.gz", hash = "sha256:21e84163a48057de9e4eba6efcb42e51994868b702e1eabdbd2a8cbddad66b66"},
+]
 pypika = [
     {file = "pypika-0.44.1.tar.gz", hash = "sha256:316839144d3ad7656405a10cdd26d2181f16bb8ff7e256d616ffb50335ca1fcb"},
+]
+pyserial = [
+    {file = "pyserial-3.5-py2.py3-none-any.whl", hash = "sha256:c4451db6ba391ca6ca299fb3ec7bae67a5c55dde170964c7a14ceefec02f2cf0"},
+    {file = "pyserial-3.5.tar.gz", hash = "sha256:3c77e014170dfffbd816e6ffc205e9842efb10be9f58ec16d3e8675b4925cddb"},
 ]
 pytz = [
     {file = "pytz-2020.5-py2.py3-none-any.whl", hash = "sha256:16962c5fb8db4a8f63a26646d8886e9d769b6c511543557bc84e9569fb9a9cb4"},
     {file = "pytz-2020.5.tar.gz", hash = "sha256:180befebb1927b16f6b57101720075a984c019ac16b1b7575673bea42c6c3da5"},
+]
+pyusb = [
+    {file = "pyusb-1.1.1-py3-none-any.whl", hash = "sha256:f18eb813d3a1439918071234589162c2f209a19adbeffeb1377ce078a4aebc70"},
+    {file = "pyusb-1.1.1.tar.gz", hash = "sha256:7d449ad916ce58aff60b89aae0b65ac130f289c24d6a5b7b317742eccffafc38"},
 ]
 smbus2 = [
     {file = "smbus2-0.4.1-py2.py3-none-any.whl", hash = "sha256:8b1e70cda011b6fb3caf8377a1084f73a5aa99392b78529f140b0a3f06468f6c"},
