@@ -20,6 +20,25 @@ class DataDaemon():
     def quit(self):
         self._run = False
 
+    def __read_sensor_values(self):
+        co2 = -1
+        voc = -1
+        temperature = float('nan')
+        humidity = float('nan')
+        try:
+            result = self._sgp30_sensor.get_air_quality()
+            co2 = result.equivalent_co2
+            voc = result.total_voc
+
+            temperature = self._dht22_sensor.temperature
+            humidity = self._dht22_sensor.humidity
+
+            logging.info(f"co3 ppm: {co2}, cov: {voc}, temparature: {temperature}, humidity: {humidity}")
+        except Exception as err:
+            logging.exception("Error reading sensor", err)
+
+        return co2, voc, temperature, humidity
+
     async def run(self):
         logging.info("initialize the sensor")
         # as the `self._sensor.start_measurement()` would be
@@ -32,29 +51,22 @@ class DataDaemon():
         testsamples = 0
 
         while self._run:
-            result = self._sgp30_sensor.get_air_quality()
-            co2 = result.equivalent_co2
-            voc = result.total_voc
-            temperature = float('nan')
-            humidity = float('nan')
-            try:
-                temperature = self._dht22_sensor.temperature
-                humidity = self._dht22_sensor.humidity
-            except RuntimeError as err:
-                logging.exception("Error reading dht22", err)
-
-            logging.info(f"co3 ppm: {co2}, cov: {voc}, temparature: {temperature}, humidity: {humidity}")
+            co2, voc, temperature, humidity = self.__read_sensor_values()
 
             if is_inited:
-                await Measurement.create(
-                    co2=co2,
-                    voc=voc,
-                    temperature=temperature,
-                    humidity=humidity
-                )
+                try:
+                    await Measurement.create(
+                        co2=co2,
+                        voc=voc,
+                        temperature=temperature,
+                        humidity=humidity
+                    )
+                except Exception as err:
+                    logging.exception("Error saving to database", err)
             else:
                 testsamples = testsamples + 1
-                if result.equivalent_co2 != 400 or result.total_voc != 0 or testsamples > 20:
+                if co2 != 400 or voc != 0 or testsamples > 20:
+                    logging.debug("Initialized sensor")
                     is_inited = True
 
             await asyncio.sleep(1)
