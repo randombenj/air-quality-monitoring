@@ -41,17 +41,27 @@ class DataDaemon():
 
     async def run(self):
         logging.info("initialize the sensor")
+        loop = asyncio.get_event_loop()
         # as the `self._sensor.start_measurement()` would be
         # blocking, it is reimplemented in the loop
         # and will only start recording measurements
         # when the sensor is heated up.
-        self._sgp30_sensor.command('init_air_quality')
+        await loop.run_in_executor(
+            None,
+            self._sgp30_sensor.command,
+            ('init_air_quality')
+        )
 
         is_inited = False
         testsamples = 0
 
         while self._run:
-            co2, voc, temperature, humidity = self.__read_sensor_values()
+            # as the reading of sensor values is syncrhonus,
+            # do this as a background task
+            co2, voc, temperature, humidity = await loop.run_in_executor(
+                None,
+                self.__read_sensor_values
+            )
 
             if is_inited:
                 try:
