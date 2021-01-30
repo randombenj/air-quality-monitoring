@@ -23,7 +23,11 @@ async def hello(request):
     })
 
 
-def get_app():
+async def start():
     app = web.Application()
     app.add_routes(routes)
-    return app
+    runner = web.AppRunner(app)
+    await runner.setup()
+    site = web.TCPSite(runner)
+    await site.start()
+    return runner

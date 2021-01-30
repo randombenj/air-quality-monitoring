@@ -15,6 +15,11 @@ async def init():
     # Generate the schema
     await Tortoise.generate_schemas()
 
+async def quit():
+    # close all connections cleanly
+    # https://tortoise-orm.readthedocs.io/en/latest/setup.html#cleaningup
+    await Tortoise.close_connections()
+
 
 class Measurement(Model):
     id = fields.IntField(pk=True)
