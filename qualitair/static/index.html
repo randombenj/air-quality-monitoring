@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Days Hours Heatmap</title>
+    <meta charset="utf-8"/>
+    <script type="text/javascript" src="https://d3js.org/d3.v3.js"></script>
+
+  </head>
+  <body>
+    <div class="days-hours-heatmap">
+      <!-- heatmap -->
+      <svg role="heatmap" class="heatmap"></svg>
+      <svg role="line"></svg>
+    </div>
+
+    <script>
+      // ==============================
+      // VOC heatmap
+      // ------------------------------
+      (function(){
+        //UI configuration
+        let itemSize = 25,
+          cellSize = itemSize - 1,
+          width = 800,
+          height = 400,
+          margin = {
+            top: 50,
+            right: 20,
+            bottom: 20,
+            left: 50
+          };
+
+        //formats
+        let hourFormat = d3.time.format('%H'),
+          dayFormat = d3.time.format('%j'),
+          timeFormat = d3.time.format('%Y-%m-%d %H:%M:%S'),
+          monthDayFormat = d3.time.format('%d.%m');
+
+        //data vars for rendering
+        let dateExtent = null,
+          data = null,
+          dayOffset = 0,
+          colorCalibration = ['#f6faaa','#FEE08B','#FDAE61','#F46D43','#D53E4F','#9E0142'],
+          dailyValueExtent = {};
+
+        //axises and scales
+        let axisWidth = itemSize * 24,
+          axisHeight = 0,
+          yAxisScale = d3.time.scale(),
+          yAxis = d3.svg.axis()
+            .orient('left')
+            .ticks(d3.time.days, 1)
+            .tickFormat(monthDayFormat),
+          xAxisScale = d3.scale.linear()
+            .range([0, axisWidth])
+            .domain([0, 24]),
+          xAxis = d3.svg.axis()
+            .orient('top')
+            .ticks(24)
+            .tickFormat(d3.format('02d'))
+            .scale(xAxisScale);
+
+        //initCalibration();
+
+        let svg = d3.select('[role="heatmap"]');
+        let heatmap = svg
+          .attr('width', width)
+          .attr('height', height)
+        .append('g')
+          .attr('width', width - margin.left - margin.right)
+          .attr('height', height - margin.top - margin.bottom)
+          .attr('transform', `translate(${margin.left}, ${margin.top})`);
+        let rect = null;
+
+        d3.json('/api/heatmap', (err, data) => {
+          data = data.data;
+          data.forEach((valueObj) => {
+            valueObj.date = timeFormat.parse(valueObj.timestamp);
+            let day = valueObj.day = monthDayFormat(valueObj.date);
+
+            let dayData = dailyValueExtent[day] = (dailyValueExtent[day] || [1000, -1]);
+            let pmValue = valueObj.value.voc;
+            dayData[0] = d3.min([dayData[0], pmValue]);
+            dayData[1] = d3.max([dayData[1], pmValue]);
+          });
+
+          dateExtent = d3.extent(data, (d) => d.date);
+          axisHeight = itemSize * (dayFormat(dateExtent[1]) - dayFormat(dateExtent[0])+1);
+
+          // render axises
+          yAxis.scale(yAxisScale.range([0, axisHeight]).domain([dateExtent[0], dateExtent[1]]));
+          svg.append('g')
+            .attr('transform', `translate(${margin.left}, ${margin.top})`)
+            .attr('class', 'x axis')
+            .call(xAxis)
+          .append('text')
+            .text('time')
+            .attr('class', 'axis-title')
+            .attr('transform', `translate(${axisHeight + 100}, -30)`);
+
+          svg.append('g')
+            .attr('transform', `translate(${margin.left}, ${margin.top})`)
+            .attr('class','y axis')
+            .call(yAxis)
+          .append('text')
+            .text('date')
+            .attr('class', 'axis-title')
+            .attr('transform', `translate(-30, ${axisHeight + 10})`);
+
+          // render heatmap rects
+          dayOffset = dayFormat(dateExtent[0]);
+          rect = heatmap.selectAll('rect')
+            .data(data)
+          .enter().append('rect')
+            .attr('width', cellSize)
+            .attr('height', cellSize)
+            .attr('y', (d) => itemSize * (dayFormat(d.date) - dayOffset))
+            .attr('x', (d) =>  hourFormat(d.date) * itemSize)
+            .attr('fill','#ffffff');
+
+          rect.filter((d) => d.value['voc'] > 0)
+            .append('title')
+            .text((d) => `${monthDayFormat(d.date)}: ${d.value.voc}ppb`);
+
+          renderColor();
+        });
+
+        function initCalibration() {
+          d3.select('[role="calibration"] [role="example"]').select('svg')
+            .selectAll('rect').data(colorCalibration).enter()
+          .append('rect')
+            .attr('width', cellSize)
+            .attr('height', cellSize)
+            .attr('x', (d, i) => i * itemSize)
+            .attr('fill',(d) => d);
+        }
+
+        function renderColor() {
+          let renderByCount = true;
+
+          rect
+            .filter(function(d){
+              return (d.value['voc'] >=0 );
+            })
+            .transition()
+            .delay(function(d){
+              return (dayFormat(d.date)-dayOffset)*15;
+            })
+            .duration(500)
+            .attrTween('fill',function(d,i,a){
+              //choose color dynamicly
+              let colorIndex = d3.scale.quantize()
+                .range([0,1,2,3,4,5])
+                .domain((renderByCount?[0,500]:dailyValueExtent[d.day]));
+
+              return d3.interpolate(a,colorCalibration[colorIndex(d.value['voc'])]);
+            });
+        }
+
+        // extend frame height in `http://bl.ocks.org/`
+        d3.select(self.frameElement).style("height", "600px");
+      })();
+
+      // ==============================
+      // VOC chart
+      // ------------------------------
+      (function () {
+        // set the dimensions and margins of the graph
+
+
+        let margin = {
+              top: 50,
+              right: 20,
+              bottom: 20,
+              left: 50
+            },
+            width = 730 - margin.left - margin.right,
+            height = 400 - margin.top - margin.bottom;
+
+        // append the svg object to the body of the page
+        let svg = d3.select('[role="line"]')
+          .attr("width", width + margin.left + margin.right)
+          .attr("height", height + margin.top + margin.bottom)
+        //svg
+        //.append("g")
+        //  .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+        //Read the data
+        d3.json("/api/measurement?limit=900", (data) => {
+
+          // map date into correct format
+          data = data.measurements.map(m => ({
+            ...m,
+            timestamp: d3.time.format('%Y-%m-%d %H:%M:%S').parse(m.timestamp)
+          }));
+
+          // draw x and y axis
+          let x = d3.time.scale()
+            .domain(d3.extent(data, (d) => d.timestamp))
+            .range([ 0, width ]);
+          svg.append("g")
+            .attr('transform', `translate(${margin.left}, ${height + margin.top})`)
+            .attr('class','x axis')
+            .call(d3.svg.axis()
+                // orient botom
+              .scale(x)
+              .orient('bottom')
+              .tickFormat(d3.time.format("%H"))
+            );
+
+          let y = d3.scale.linear()
+            .domain(d3.extent(data, (d) => d.voc))
+            .range([height, 0]);
+          svg.append('g')
+            .attr('class','y axis')
+            .attr('transform', `translate(${margin.left}, ${margin.top})`)
+            .call(
+              d3.svg.axis()
+                .orient('left')
+                .scale(y)
+            )
+          .append('text')
+            .text('VOC')
+            .attr('class', 'axis-title');
+
+
+          // Add the graph
+          svg.append("path")
+            .datum(data)
+            .attr('transform', `translate(${margin.left}, ${margin.top})`)
+            .attr("fill", "none")
+            .attr("stroke", "steelblue")
+            .attr("stroke-width", 1.5)
+            .attr("d", d3.svg.line()
+              .x((d) => x(d.timestamp))
+              .y((d) => y(d.voc))
+            )
+
+        })
+      })();
+    </script>
+    <style type="text/css">
+      body {
+        font-family: arial, 'Hiragino Sans GB',Tahoma, Arial, Helvetica, STHeiti;
+        font-size: 14px;
+      }
+      .days-hours-heatmap {
+        padding: 20px 0 20px 0;
+        width: 500px;
+        margin: 0 auto;
+      }
+      .days-hours-heatmap .calibration {
+        margin-bottom: 15px;
+        width:400px;
+      }
+      .days-hours-heatmap .axis-title {
+        font-weight: bold;
+      }
+      .days-hours-heatmap .calibration .group {
+        display: inline-block;
+      }
+      .days-hours-heatmap .calibration .description {
+        width: 108px;
+      }
+      .days-hours-heatmap .calibration .description > label:last-child {
+        float:right;
+      }
+
+
+      .axis path {
+        display: none;
+      }
+      .axis line {
+        fill: none;
+        stroke: #333;
+        shape-rendering: crispEdges;
+      }
+      .axis text {
+        font-size: 12px
+      }
+    </style>
+  </body>
+</html>
+

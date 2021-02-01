@@ -1,3 +1,5 @@
+
+from pypika.terms import Criterion
 from tortoise.models import Model
 from tortoise import Tortoise, fields
 
@@ -15,10 +17,33 @@ async def init():
     # Generate the schema
     await Tortoise.generate_schemas()
 
+
 async def quit():
     # close all connections cleanly
     # https://tortoise-orm.readthedocs.io/en/latest/setup.html#cleaningup
     await Tortoise.close_connections()
+
+
+class Interval(Criterion):
+    def __init__(self, field, interval, alias=None, *args, **kwargs):
+        """
+        Selects an intervall in dates
+        Args:
+          field (str): Name of the field to create the interval on (must be datetime)
+          interval (int): Interval in seconds
+        """
+        super().__init__(alias)
+        self.field = field
+        self.interval = interval
+
+    def fields(self):
+        return [self.field]
+
+    def get_sql(self, **kwargs):
+        if self.alias:
+            return f"datetime((strftime('%s', {self.field}) / {self.interval}) * {self.interval}, 'unixepoch') AS {self.alias}"
+        else:
+            return f"datetime((strftime('%s', {self.field}) / {self.interval}) * {self.interval}, 'unixepoch')"
 
 
 class Measurement(Model):
@@ -38,5 +63,5 @@ class Measurement(Model):
             "voc": self.voc,
             "temperature": self.temperature,
             "humidity": self.humidity,
-            "timestamp": self.timestamp.isoformat()
+            "timestamp": f"{self.timestamp:%Y-%m-%d %H:%M:%S}"
         }
