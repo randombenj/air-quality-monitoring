@@ -4,9 +4,17 @@ the SGP30 sensor
 """
 import logging
 import asyncio
-import board
-import adafruit_dht
 from sgp30 import SGP30
+
+from qualitair.config import (
+    ENABLE_DHT22,
+    DHT22_PIN,
+    QUERY_DELAY
+)
+
+if ENABLE_DHT22:
+    import board
+    import adafruit_dht
 
 from qualitair.db import Measurement
 
@@ -14,8 +22,9 @@ from qualitair.db import Measurement
 class DataDaemon():
     def __init__(self):
         self._sgp30_sensor = SGP30()
-        self._dht22_sensor = adafruit_dht.DHT22(board.D4)
         self._run = True
+        if ENABLE_DHT22:
+            self._dht22_sensor = adafruit_dht.DHT22(getattr(board, f"D{DHT22_PIN}"))
 
     def quit(self):
         self._run = False
@@ -29,9 +38,9 @@ class DataDaemon():
             result = self._sgp30_sensor.get_air_quality()
             co2 = result.equivalent_co2
             voc = result.total_voc
-
-            temperature = self._dht22_sensor.temperature
-            humidity = self._dht22_sensor.humidity
+            if ENABLE_DHT22:
+                temperature = self._dht22_sensor.temperature
+                humidity = self._dht22_sensor.humidity
 
             logging.info(f"co3 ppm: {co2}, cov: {voc}, temparature: {temperature}, humidity: {humidity}")
         except Exception as err:
@@ -79,4 +88,4 @@ class DataDaemon():
                     logging.debug("Initialized sensor")
                     is_inited = True
 
-            await asyncio.sleep(1)
+            await asyncio.sleep(QUERY_DELAY)
