@@ -2,6 +2,8 @@
 
 SETUP=${2:-setup.sh}
 
+SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
+
 set -e
 
 if [[ "$(dpkg --print-architecture)" != "armhf" ]]; then
@@ -66,6 +68,9 @@ function cleanup {
 }
 # Copy setup script to image
 cp ${SETUP} ${MNT}/setup.sh
+# Copy the app to the image (maybe publish to registry first)
+cp -r $SCRIPT_DIR/../../qualitair ${MNT}/opt/
+cp $SCRIPT_DIR/qualitair.service /lib/systemd/system/
 chmod +x ${MNT}/setup.sh
 function cleanup {
   rm ${MNT}/setup.sh

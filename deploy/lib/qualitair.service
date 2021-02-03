@@ -1,0 +1,15 @@
+[Unit]
+Description=Air Quality Daemon
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=pi
+WorkingDirectory=/opt
+ExecStart=/usr/bin/python3 -m qualitair
+
+[Install]
+WantedBy=multi-user.target

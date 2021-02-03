@@ -4,8 +4,8 @@ set -e
 
 IMG=$1
 
-# Default to 100MB
-MEGA=${2:-100}
+# Default to 200MB
+MEGA=${2:-200}
 
 # Create a dummy partition to help defaults later
 fdisk ${IMG} <<EOF > /dev/null

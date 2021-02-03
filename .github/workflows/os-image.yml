@@ -17,9 +17,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Install poetry
+        run: curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
+
       # Runs the Super-Linter action
       - name: Build deployment
-        run: ./deploy/setup.sh
+        run: |
+          source $HOME/.poetry/env
+          ./deploy/setup.sh
 
       - name: Upload deployment
         uses: actions/upload-artifact@v2

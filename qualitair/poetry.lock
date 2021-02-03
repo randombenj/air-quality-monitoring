@@ -1,6 +1,6 @@
 [[package]]
 name = "adafruit-blinka"
-version = "5.13.0"
+version = "5.13.1"
 description = "CircuitPython APIs for non-CircuitPython versions of Python such as CPython on Linux and MicroPython."
 category = "main"
 optional = false
@@ -237,7 +237,7 @@ content-hash = "d21a69fd5af9e0fd45a97e01d1185bdea9df315358b4cda0d3b7dfcf65d6ffcf
 
 [metadata.files]
 adafruit-blinka = [
-    {file = "Adafruit-Blinka-5.13.0.tar.gz", hash = "sha256:65b1b2228b5268e92c7a0330c99325a95af43b6e0b06fa1da42b3f52f7c479dc"},
+    {file = "Adafruit-Blinka-5.13.1.tar.gz", hash = "sha256:05c83970b336b85c78d5ed8f3578efc5ccdaf4a95f1707b943efcd29a6d66e4a"},
 ]
 adafruit-circuitpython-dht = [
     {file = "adafruit-circuitpython-dht-3.5.4.tar.gz", hash = "sha256:a54b2c53c435f016b7c532692162d0d6fd0ded1d7d5ce4fd4c1916fed56d59b7"},
