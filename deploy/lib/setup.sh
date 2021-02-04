@@ -18,13 +18,14 @@ fi
 systemctl enable ssh
 
 # install setup dependencies
-sudo apt install --yes gpiod python3-pip
+sudo apt install --yes gpiod python3-pip ntp
 
 # install the application and service
 python3 -m pip install -r /opt/qualitair/requirements.txt
 
 # enable the service
 systemctl enable qualitair
+systemctl enable ntp
 
 # configure timezone and hostname
 sed -e s/raspberrypi/qualitair/ -i /etc/host{s,name}
